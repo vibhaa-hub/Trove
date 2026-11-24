@@ -1,0 +1,7 @@
+mistralai>=1.5,<3
+cryptography>=44,<46
+pypdf>=5.4,<7
+python-dotenv>=1,<2
+defusedxml>=0.7,<1
+psycopg[binary]>=3.2,<4
+fastembed>=0.4,<1

@@ -1,0 +1,1203 @@
+Trove 
+
+Business, Functional, Technical, Security & Discovery Blueprint 
+
+1. Executive Summary 
+
+Trove is an AI-powered Inheritance Operating System enabling families, financial institutions, executors, trustees, and beneficiaries to: 
+
+Plan inheritance before death 
+
+Preserve critical documents 
+
+Register assets 
+
+Assign beneficiaries 
+
+Discover unknown assets 
+
+Validate legal heirs 
+
+Prevent fraud 
+
+Orchestrate claims 
+
+Facilitate settlement 
+
+The platform supports two operating modes: 
+
+Plan Mode (Pre-Death) 
+
+The individual proactively registers assets and inheritance intentions. 
+
+Discovery Mode (Post-Death) 
+
+The individual never registered with Trove and assets must be discovered through documents, emails, institutions, government records, and AI-driven investigation. 
+
+Both modes operate on the same: 
+
+Data model 
+
+Knowledge graph 
+
+Security framework 
+
+AI agents 
+
+Integrations 
+
+Workflows 
+
+Compliance controls 
+
+ 
+
+2. Problem Statement 
+
+Global Problem 
+
+Millions of families encounter inheritance issues because: 
+
+Assets exist across multiple institutions 
+
+Beneficiaries lack visibility 
+
+Records are fragmented 
+
+Nomination information is missing 
+
+Wills are unavailable 
+
+Digital assets are hidden 
+
+Pension benefits are forgotten 
+
+Result: 
+
+Unknown Assets 
+
++ 
+
+Missing Documents 
+
++ 
+
+Manual Investigation 
+
++ 
+
+Fraud Risk 
+
++ 
+
+Complex Claims 
+
+=  
+
+Delayed Wealth Transfer 
+
+ 
+
+3. Business Objectives 
+
+Trove aims to: 
+
+Objective 1 
+
+Create a lifelong inheritance platform. 
+
+Objective 2 
+
+Reduce beneficiary discovery effort. 
+
+Objective 3 
+
+Increase asset recovery rates. 
+
+Objective 4 
+
+Reduce fraud. 
+
+Objective 5 
+
+Provide a regulated digital inheritance ecosystem. 
+
+ 
+
+4. Operating Model 
+
+                    TROVE 
+
+                           │ 
+
+         ┌─────────────────┼────────────────┐ 
+
+         ▼                                  ▼ 
+
+   PLAN MODE                      DISCOVERY MODE 
+
+   Proactive                      Reactive 
+
+   Registered Assets              Unknown Assets 
+
+         ▼                                  ▼ 
+
+                COMMON DATA PLATFORM 
+
+                           ▼ 
+
+                   KNOWLEDGE GRAPH 
+
+                           ▼ 
+
+                     TRUST ENGINE 
+
+                           ▼ 
+
+                  BENEFICIARY ENGINE 
+
+                           ▼ 
+
+                    CLAIMS ENGINE 
+
+                           ▼ 
+
+                      SETTLEMENT 
+
+ 
+
+5. Plan Mode 
+
+Overview 
+
+Used before death. 
+
+User Actions 
+
+Register assets 
+
+Assign beneficiaries 
+
+Upload documents 
+
+Create wills 
+
+Record instructions 
+
+Store digital assets 
+
+Data Sources 
+
+Manual Entry 
+
+Document Upload 
+
+Institution APIs 
+
+Open Banking 
+
+Insurance APIs 
+
+Pension Feeds 
+
+Investment Feeds 
+
+Outputs 
+
+Asset Registry 
+
+Beneficiary Registry 
+
+Digital Vault 
+
+Inheritance Instructions 
+
+Claims Readiness 
+
+ 
+
+6. Discovery Mode 
+
+Overview 
+
+Used after death where no prior planning exists. 
+
+Typical Starting Point 
+
+Family possesses: 
+
+Death Certificate 
+
+Name 
+
+DOB 
+
+National ID 
+
+Email Address 
+
+Phone Number 
+
+and little else. 
+
+Objective 
+
+Discover: 
+
+Bank Assets 
+
+Insurance 
+
+Investments 
+
+Properties 
+
+Pensions 
+
+Business Holdings 
+
+Crypto Holdings 
+
+Digital Assets 
+
+ 
+
+7. Discovery Mechanisms 
+
+Discovery Mechanism 1 
+
+Document Upload 
+
+Beneficiaries upload: 
+
+Statements 
+
+Tax Returns 
+
+Letters 
+
+Identity Documents 
+
+Medical Records 
+
+Property Documents 
+
+AI extracts: 
+
+Institution Names 
+
+Account Numbers 
+
+Policies 
+
+Property References 
+
+Investment Holdings 
+
+ 
+
+Discovery Mechanism 2 
+
+Email Discovery MCP 
+
+User connects: 
+
+Outlook 
+
+Microsoft 365 
+
+Exchange 
+
+Gmail 
+
+Yahoo 
+
+Scans: 
+
+Insurance Premiums 
+
+FD Renewals 
+
+Broker Statements 
+
+Pension Communications 
+
+Mutual Fund Alerts 
+
+Crypto Notifications 
+
+Architecture: 
+
+Email MCP 
+
+     │ 
+
+     ▼ 
+
+Mailbox Reader 
+
+     │ 
+
+     ▼ 
+
+Attachment Processor 
+
+     │ 
+
+     ▼ 
+
+Document AI 
+
+     │ 
+
+     ▼ 
+
+Entity Extraction 
+
+     │ 
+
+     ▼ 
+
+Knowledge Graph 
+
+ 
+
+Discovery Mechanism 3 
+
+Cloud Discovery 
+
+Sources: 
+
+OneDrive 
+
+SharePoint 
+
+Google Drive 
+
+Dropbox 
+
+Box 
+
+iCloud 
+
+Searches: 
+
+Will 
+
+Trust 
+
+Insurance 
+
+Property 
+
+Investment 
+
+ 
+
+Discovery Mechanism 4 
+
+Device Discovery Agent 
+
+Authorized scans: 
+
+Laptop 
+
+Phone 
+
+USB 
+
+NAS 
+
+External Drive 
+
+Finds: 
+
+Wallet Files 
+
+Passkeys 
+
+PDF Records 
+
+Excel Files 
+
+Tax Artifacts 
+
+ 
+
+Discovery Mechanism 5 
+
+Banking Discovery Network 
+
+Queries participating banks. 
+
+Inputs: 
+
+Name 
+
+DOB 
+
+ID 
+
+Phone 
+
+Email 
+
+Returns: 
+
+Potential Accounts 
+
+Dormant Deposits 
+
+Fixed Deposits 
+
+Savings Accounts 
+
+ 
+
+Discovery Mechanism 6 
+
+Insurance Discovery 
+
+Finds: 
+
+Life Policies 
+
+Health Policies 
+
+Employer Policies 
+
+Annuities 
+
+ 
+
+Discovery Mechanism 7 
+
+Pension Discovery 
+
+Locates: 
+
+Private Pension 
+
+State Pension 
+
+Employer Pension 
+
+Provident Funds 
+
+ 
+
+Discovery Mechanism 8 
+
+Property Discovery 
+
+Queries: 
+
+Land Registry 
+
+Property Registry 
+
+Mortgage Registry 
+
+Municipal Databases 
+
+ 
+
+Discovery Mechanism 9 
+
+Investment Discovery 
+
+Discovers: 
+
+Stocks 
+
+Mutual Funds 
+
+Bonds 
+
+Brokerage Accounts 
+
+Retirement Accounts 
+
+ 
+
+Discovery Mechanism 10 
+
+Crypto Discovery 
+
+Identifies: 
+
+Wallet References 
+
+Exchange Accounts 
+
+NFT Holdings 
+
+Custodial Accounts 
+
+ 
+
+8. Core Features 
+
+Asset Registry 
+
+Supports: 
+
+Bank Accounts 
+
+Investments 
+
+Insurance 
+
+Property 
+
+Trusts 
+
+Crypto 
+
+Business Ownership 
+
+Pensions 
+
+ 
+
+Beneficiary Registry 
+
+Supports: 
+
+Primary Beneficiary 
+
+Secondary Beneficiary 
+
+Minor Beneficiary 
+
+Trust Beneficiary 
+
+Corporate Beneficiary 
+
+ 
+
+Digital Vault 
+
+Stores: 
+
+Will 
+
+Trust Deeds 
+
+Property Papers 
+
+Policies 
+
+Tax Returns 
+
+Identity Proof 
+
+ 
+
+Claims Workspace 
+
+Provides: 
+
+Claims Tracker 
+
+Case Management 
+
+Evidence Management 
+
+Workflow Automation 
+
+ 
+
+9. AI Architecture 
+
+AI Layers 
+
+Documents 
+
+Emails 
+
+Cloud 
+
+Institutions 
+
+Government Data 
+
+Devices 
+
+        ▼ 
+
+Document Intelligence 
+
+        ▼ 
+
+OCR 
+
+        ▼ 
+
+NER 
+
+        ▼ 
+
+Entity Resolution 
+
+        ▼ 
+
+Knowledge Graph 
+
+        ▼ 
+
+Discovery Engine 
+
+        ▼ 
+
+Claims Recommendations 
+
+ 
+
+10. AI Agents 
+
+Document Agent 
+
+Processes uploaded documentation. 
+
+ 
+
+Discovery Agent 
+
+Searches and aggregates assets. 
+
+ 
+
+Entity Resolution Agent 
+
+Matches identities. 
+
+ 
+
+Beneficiary Agent 
+
+Validates heirs. 
+
+ 
+
+Fraud Agent 
+
+Detects suspicious activities. 
+
+ 
+
+Compliance Agent 
+
+Runs AML/KYC checks. 
+
+ 
+
+Case Manager Agent 
+
+Coordinates workflows. 
+
+ 
+
+11. Knowledge Graph Architecture 
+
+                    PERSON 
+
+      ┌─────────────┼─────────────┐ 
+
+      ▼             ▼             ▼ 
+
+   EMAIL         PHONE        ADDRESS 
+
+      ▼             ▼             ▼ 
+
+   BANKS      INSURANCE      PROPERTY 
+
+      ▼             ▼             ▼ 
+
+     PENSION     INVESTMENT     TRUST 
+
+                ▼ 
+
+          KNOWLEDGE GRAPH 
+
+Benefits: 
+
+Hidden relationship detection 
+
+Duplicate elimination 
+
+Beneficiary mapping 
+
+Fraud analysis 
+
+ 
+
+12. Enterprise Architecture 
+
+Web Portal 
+
+Mobile App 
+
+Partner Portal 
+
+Admin Portal 
+
+        ▼ 
+
+API Gateway 
+
+        ▼ 
+
+Microservices Layer 
+
+ ┌─────────────────────────────┐ 
+
+ │ Asset Service               │ 
+
+ │ Discovery Service           │ 
+
+ │ Beneficiary Service         │ 
+
+ │ Claims Service              │ 
+
+ │ Trust Service               │ 
+
+ │ Vault Service               │ 
+
+ └─────────────────────────────┘ 
+
+        ▼ 
+
+AI Layer 
+
+        ▼ 
+
+Knowledge Graph 
+
+        ▼ 
+
+Data Platform 
+
+        ▼ 
+
+External Integrations 
+
+ 
+
+13. Integration Architecture 
+
+Consumer Connectors 
+
+Outlook 
+
+Microsoft 365 
+
+OneDrive 
+
+SharePoint 
+
+Google Drive 
+
+Dropbox 
+
+WhatsApp Export 
+
+Banking 
+
+Core Banking 
+
+Open Banking 
+
+Payment Systems 
+
+Insurance 
+
+Policy Systems 
+
+Claims Platforms 
+
+Pension 
+
+Retirement Systems 
+
+Provident Funds 
+
+Investments 
+
+Custodians 
+
+Brokers 
+
+Asset Managers 
+
+Government 
+
+Death Registry 
+
+Identity Registry 
+
+Property Registry 
+
+Court Systems 
+
+Business Registry 
+
+ 
+
+14. Data Architecture 
+
+Operational Databases 
+
+PostgreSQL 
+
+SQL Server 
+
+Graph Databases 
+
+Neo4j 
+
+Cosmos DB Graph 
+
+Data Lake 
+
+Azure Data Lake 
+
+Databricks 
+
+ 
+
+15. Security Architecture 
+
+Zero Trust Model 
+
+User 
+
+ ▼ 
+
+MFA 
+
+ ▼ 
+
+Identity Provider 
+
+ ▼ 
+
+Policy Engine 
+
+ ▼ 
+
+Authorization 
+
+ ▼ 
+
+Application Services 
+
+ ▼ 
+
+Encrypted Data Layer 
+
+ 
+
+Security Controls 
+
+Identity Security 
+
+MFA 
+
+SSO 
+
+Passwordless 
+
+Biometrics 
+
+Data Security 
+
+AES-256 
+
+Tokenization 
+
+Masking 
+
+Encryption 
+
+API Security 
+
+OAuth 
+
+OIDC 
+
+JWT 
+
+API Gateway 
+
+Rate Limiting 
+
+Infrastructure Security 
+
+WAF 
+
+Firewall 
+
+DDoS Protection 
+
+EDR 
+
+Container Security 
+
+Security Monitoring 
+
+SIEM 
+
+SOC 
+
+Threat Detection 
+
+Audit Logging 
+
+ 
+
+16. Fraud Management 
+
+Detects: 
+
+Identity Theft 
+
+Duplicate Claims 
+
+Forged Documents 
+
+Beneficiary Manipulation 
+
+Synthetic Identity 
+
+False Death Claims 
+
+ 
+
+17. Compliance & Regulations 
+
+Global 
+
+GDPR 
+
+ISO 27001 
+
+SOC2 
+
+ISO 27701 
+
+United Kingdom 
+
+FCA 
+
+PRA 
+
+UK GDPR 
+
+European Union 
+
+GDPR 
+
+eIDAS 
+
+India 
+
+DPDP Act 
+
+RBI Guidelines 
+
+SEBI Guidelines 
+
+IRDAI Guidelines 
+
+USA 
+
+SEC 
+
+FINRA 
+
+State Probate Regulations 
+
+ 
+
+18. Technology Stack 
+
+Front-End 
+
+React 
+
+Angular 
+
+Flutter 
+
+Backend 
+
+Python 
+
+Java Spring Boot 
+
+.NET Core 
+
+Node.js 
+
+AI 
+
+Azure OpenAI 
+
+Embeddings 
+
+OCR 
+
+NER 
+
+Vector Search 
+
+RAG 
+
+Data 
+
+PostgreSQL 
+
+Cosmos DB 
+
+Neo4j 
+
+Redis 
+
+Analytics 
+
+Databricks 
+
+Power BI 
+
+Fabric 
+
+ 
+
+19. Operating Model 
+
+Actors 
+
+Asset Owner 
+
+Creates inheritance profile. 
+
+Beneficiary 
+
+Receives entitlements. 
+
+Executor 
+
+Administers estate. 
+
+Institution 
+
+Validates assets. 
+
+Administrator 
+
+Operates platform. 
+
+ 
+
+20. Revenue Model 
+
+Consumer 
+
+Subscriptions 
+
+Estate Plans 
+
+Vault Storage 
+
+Enterprise 
+
+SaaS Licensing 
+
+White Label 
+
+API Access 
+
+Transactional 
+
+Discovery Fees 
+
+Claims Fees 
+
+Recovery Fees 
+
+ 
+
+21. KPIs 
+
+Business 
+
+Assets Registered 
+
+Assets Recovered 
+
+Active Families 
+
+Discovery Success Rate 
+
+AI 
+
+OCR Accuracy 
+
+Entity Matching Accuracy 
+
+Fraud Detection Precision 
+
+Operational 
+
+Average Discovery Time 
+
+Claim Processing Time 
+
+Settlement Time 
+
+ 
+
+22. End-to-End Unified Flow 
+
+                    TROVE 
+
+                           │ 
+
+          ┌────────────────┼────────────────┐ 
+
+          ▼                                 ▼ 
+
+     PLAN MODE                       DISCOVERY MODE 
+
+ Register Assets                   Upload Evidence 
+
+ Store Documents                   Connect Email 
+
+ Assign Beneficiaries              Connect Cloud 
+
+ Setup Vault                       Search Institutions 
+
+          ▼                                 ▼ 
+
+               Common Knowledge Graph 
+
+                           ▼ 
+
+                Trust & Identity Engine 
+
+                           ▼ 
+
+                Beneficiary Validation 
+
+                           ▼ 
+
+                   Claims Processing 
+
+                           ▼ 
+
+                    Asset Transfer 
+
+                           ▼ 
+
+                     Settlement 

@@ -1,0 +1,145 @@
+<title>Trove Baseline Specification</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: estate-file feel — sticky contents rail on the left, one reading column, ledger-style tables */
+:root{
+  --bg:#f5f7f6; --surface:#ffffff; --ink:#14211f; --muted:#5a6b68; --line:#d9e1df;
+  --accent:#0f5a52; --brass:#9a6b16; --code-bg:#eef3f1;
+  --built-bg:#dff1e6; --built-fg:#1d6b3a; --partial-bg:#fbefd5; --partial-fg:#86570a;
+  --planned-bg:#e5ebf6; --planned-fg:#2d4f8a;
+  --f-display:"Manrope",system-ui,sans-serif; --f-body:"Source Sans 3",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1715; --surface:#16211f; --ink:#e3ece9; --muted:#9aaca8; --line:#2a3a37;
+  --accent:#5cc2b3; --brass:#d9a94a; --code-bg:#1b2826;
+  --built-bg:#183a27; --built-fg:#8fdcab; --partial-bg:#3d3015; --partial-fg:#f0c66f;
+  --planned-bg:#1d2a44; --planned-fg:#9dbbf2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1715; --surface:#16211f; --ink:#e3ece9; --muted:#9aaca8; --line:#2a3a37;
+  --accent:#5cc2b3; --brass:#d9a94a; --code-bg:#1b2826;
+  --built-bg:#183a27; --built-fg:#8fdcab; --partial-bg:#3d3015; --partial-fg:#f0c66f;
+  --planned-bg:#1d2a44; --planned-fg:#9dbbf2; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6}
+.top{border-bottom:1px solid var(--line);background:var(--surface);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px}
+.top-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mark{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:.02em;color:var(--accent)}
+.chip{font-family:var(--f-mono);font-size:12px;padding:3px 8px;border:1px solid var(--brass);color:var(--brass);border-radius:4px;letter-spacing:.04em}
+.top .meta{color:var(--muted);font-size:14px;margin-left:auto}
+.wrap{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 80px}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto;font-size:14px}
+.toc h2{font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 10px}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.toc a{display:block;padding:5px 10px;border-left:2px solid transparent;color:var(--muted);text-decoration:none;line-height:1.35}
+.toc a:hover{color:var(--ink)}
+.toc a.on{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+.toc a:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+main{min-width:0}
+#doc{max-width:860px}
+#doc h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,4.5vw,44px);line-height:1.12;margin:0 0 10px;text-wrap:balance}
+#doc h1 + p strong{font-family:var(--f-display);font-weight:600;font-size:19px;color:var(--accent)}
+#doc h2{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1.25;margin:56px 0 14px;padding-top:18px;border-top:1px solid var(--line);text-wrap:balance;scroll-margin-top:16px}
+#doc h3{font-family:var(--f-display);font-weight:700;font-size:19px;margin:32px 0 8px;scroll-margin-top:16px}
+#doc p,#doc li{max-width:68ch}
+#doc a{color:var(--accent)}
+#doc hr{display:none}
+#doc blockquote{margin:18px 0;padding:12px 18px;border-left:3px solid var(--brass);background:var(--surface);color:var(--ink)}
+#doc blockquote p{margin:0}
+#doc code{font-family:var(--f-mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+#doc pre{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:16px 18px;overflow-x:auto;line-height:1.45}
+#doc pre code{background:none;padding:0;font-size:13px;color:var(--ink)}
+.tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+#doc table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+#doc th{font-family:var(--f-display);font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+#doc td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+#doc tr:last-child td{border-bottom:0}
+.pill{display:inline-block;font-family:var(--f-mono);font-size:11.5px;font-weight:500;line-height:1;padding:4px 7px;border-radius:999px;letter-spacing:.03em;white-space:nowrap;vertical-align:2px}
+.pill.built{background:var(--built-bg);color:var(--built-fg)}
+.pill.partial{background:var(--partial-bg);color:var(--partial-fg)}
+.pill.planned{background:var(--planned-bg);color:var(--planned-fg)}
+.state{color:var(--muted);padding:40px 0}
+.mobile-toc{display:none}
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding-block:20px 60px}
+  nav.toc{display:none}
+  .mobile-toc{display:block;margin-bottom:20px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+  .mobile-toc summary{cursor:pointer;padding:12px 14px;font-family:var(--f-display);font-weight:700}
+  .mobile-toc ol{list-style:none;margin:0;padding:0 14px 12px;display:grid;gap:4px;font-size:15px}
+  .mobile-toc a{color:var(--accent);text-decoration:none}
+  .top .meta{margin-left:0;width:100%}
+  body{font-size:16px}
+}
+</style>
+
+<header class="top"><div class="top-in">
+  <span class="mark">TROVE</span><span class="chip">BASELINE v1.0</span>
+  <span class="meta">Product &amp; technical specification · 17 November 2026</span>
+</div></header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Contents">
+    <h2>Contents</h2>
+    <ol id="toc"></ol>
+    <div class="legend" aria-label="Status legend">
+      <span class="pill built">Built</span><span class="pill partial">Partial</span><span class="pill planned">Planned</span>
+    </div>
+  </nav>
+  <main>
+    <details class="mobile-toc"><summary>Contents</summary><ol id="toc-m"></ol></details>
+    <article id="doc"><p class="state">Loading the specification…</p></article>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+(function(){
+  var doc=document.getElementById('doc');
+  function slug(t){return t.toLowerCase().replace(/^\d+\.\s*/,'s-'+(t.match(/^\d+/)||[''])[0]+'-').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+  function pillify(root){
+    var re=/^(Built|Partial|Planned)$/;
+    root.querySelectorAll('strong').forEach(function(s){
+      var t=s.textContent.trim(); if(re.test(t)){s.className='pill '+t.toLowerCase();}
+    });
+    root.querySelectorAll('td').forEach(function(td){
+      if(td.children.length===0){var t=td.textContent.trim(); if(re.test(t)){td.innerHTML='<span class="pill '+t.toLowerCase()+'">'+t+'</span>';}
+      else{var m=t.match(/^(Built|Partial|Planned)\s*(\(.+)$/); if(m){td.innerHTML='<span class="pill '+m[1].toLowerCase()+'">'+m[1]+'</span> <span>'+m[2].replace(/</g,'&lt;')+'</span>';}}}
+    });
+    root.querySelectorAll('h3').forEach(function(h){
+      var m=h.textContent.match(/^(.*)\s—\s(.+)$/); if(!m)return;
+      var st=m[2].match(/\b(Built|Partial|Planned)\b/); if(!st)return;
+      h.textContent=m[1]+' '; var sp=document.createElement('span'); sp.className='pill '+st[1].toLowerCase(); sp.textContent=m[2]; h.appendChild(sp);
+    });
+  }
+  function build(md){
+    if(window.marked){doc.innerHTML=marked.parse(md,{gfm:true});}
+    else{var pre=document.createElement('pre');pre.textContent=md;doc.innerHTML='';doc.appendChild(pre);return;}
+    // drop the in-document contents list; the sidebar replaces it
+    var h2s=[].slice.call(doc.querySelectorAll('h2'));
+    h2s.forEach(function(h){ if(h.textContent.trim()==='Contents'){ var n=h.nextElementSibling; while(n&&n.tagName!=='H2'&&n.tagName!=='HR'){var x=n.nextElementSibling;n.remove();n=x;} h.remove(); }});
+    doc.querySelectorAll('table').forEach(function(t){var w=document.createElement('div');w.className='tbl';t.parentNode.insertBefore(w,t);w.appendChild(t);});
+    pillify(doc);
+    var toc=document.getElementById('toc'), tocm=document.getElementById('toc-m'), links=[];
+    doc.querySelectorAll('h2').forEach(function(h){
+      h.id=slug(h.textContent);
+      [toc,tocm].forEach(function(list,i){var li=document.createElement('li'),a=document.createElement('a');a.href='#'+h.id;a.textContent=h.textContent;li.appendChild(a);list.appendChild(li);if(i===0)links.push([h,a]);});
+    });
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(p){p[1].classList.toggle('on',p[0]===e.target)});}})},{rootMargin:'0px 0px -75% 0px'});
+      links.forEach(function(p){io.observe(p[0])});
+    }
+    tocm.addEventListener('click',function(e){if(e.target.tagName==='A')tocm.parentNode.open=false;});
+    if(location.hash){var t=document.getElementById(location.hash.slice(1)); if(t)t.scrollIntoView();}
+  }
+  fetch('trove-spec.md').then(function(r){if(!r.ok)throw new Error(r.status);return r.text();})
+    .then(build)
+    .catch(function(){doc.innerHTML='<p class="state">The specification file could not be loaded. Reload the page to try again.</p>';});
+})();
+</script>

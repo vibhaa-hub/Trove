@@ -1,0 +1,84 @@
+# Production-style stack: Caddy (TLS) -> web -> PostgreSQL, plus a worker.
+#   cp .env.example .env   # fill in secrets
+#   docker compose up -d --build
+#   docker compose exec web python -m trove_agent create-reviewer alice
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trove
+      POSTGRES_USER: trove
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trove -d trove"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [backend]
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TROVE_ENV: production
+      TROVE_HOST: 0.0.0.0
+      TROVE_RUN_WORKER: "false"
+      DATABASE_URL: postgresql://trove:${POSTGRES_PASSWORD}@db:5432/trove
+      HF_HUB_OFFLINE: "1"
+    volumes:
+      - vault:/data/vault
+      - ./import:/data/import:ro
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [backend, frontend]   # frontend also gives egress for SMTP/SMS
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  worker:
+    build: .
+    restart: unless-stopped
+    command: ["python", "-m", "trove_agent", "worker"]
+    env_file: .env
+    environment:
+      TROVE_ENV: production
+      DATABASE_URL: postgresql://trove:${POSTGRES_PASSWORD}@db:5432/trove
+      HF_HUB_OFFLINE: "1"
+    volumes:
+      - vault:/data/vault
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [backend, frontend]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    healthcheck:
+      disable: true
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      TROVE_DOMAIN: ${TROVE_DOMAIN:?set TROVE_DOMAIN in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [web]
+    networks: [frontend]
+
+volumes:
+  pgdata:
+  vault:
+  caddy_data:
+
+networks:
+  backend:
+    internal: true   # database is never reachable from outside
+  frontend:

@@ -1,0 +1,22 @@
+.env
+trove.db
+trove.db-*
+__pycache__/
+*.py[cod]
+.venv/
+*_vault/
+trove_vault/
+.trove-local/
+.models/
+backups/
+import/
+venv/
+frontend/node_modules/
+# built by `npm --prefix frontend run build`
+trove_agent/web/
+demo.db*
+demo-files/
+demo-logins.txt
+e2e-*
+frontend/test-results/
+frontend/playwright-report/

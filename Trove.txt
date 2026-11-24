@@ -1,0 +1,1131 @@
+# Trove — Baseline Product & Technical Specification
+
+**The Inheritance Operating System: plan it before, find it after, claim it safely.**
+
+| Field | Value |
+|---|---|
+| Document | Trove Baseline Specification |
+| Version | 1.0 (BASELINE) |
+| Date | 17 November 2026 |
+| Status | Baselined. Changes after this point go through the change log (Section 30) |
+| Supersedes | Trove.txt v0 blueprint (kept as Trove_v0_original.txt) |
+| Covers | Problem, solution, discovery mechanisms, architecture (HLD + LLD), system design, security, compliance, market, competitors, business model, funding, roadmap, risks, open questions |
+| Implementation reference | Working prototype in this repository (trove_agent/, frontend/). Each capability below is tagged **Built**, **Partial** or **Planned** |
+
+> Market figures in this document are indicative and come from public sources named next to them. Check them against the latest published numbers before using them with investors or partners. Nothing here is legal advice; each country profile needs review by counsel.
+
+---
+
+## Contents
+
+1. Executive summary
+2. Problem statement
+3. Who suffers: personas and jobs to be done
+4. Solution overview
+5. How Trove solves each problem
+6. Business objectives and success metrics
+7. Operating model and actors
+8. Plan Mode (before death)
+9. Discovery Mode (after death)
+10. Discovery mechanisms (detailed)
+11. Discovery engine: leads, confidence and coverage
+12. Trust, identity and release engine
+13. Claims and settlement engine
+14. AI architecture and agents
+15. Knowledge graph
+16. High-level design (HLD)
+17. Low-level design (LLD)
+18. System design: non-functional requirements and scale
+19. Technology stack (baseline decisions)
+20. Security architecture
+21. Fraud management
+22. Compliance, regulation and legal access
+23. Market opportunity
+24. Competitive landscape
+25. What Trove does that others do not
+26. Business model: who pays and how
+27. Funding plan
+28. Go-to-market
+29. Roadmap and MVP scope
+30. Risks, assumptions, open questions, change log
+31. Glossary
+
+---
+
+## 1. Executive summary
+
+When someone dies, their family has to find out what they owned, prove they are entitled to it, and claim it from each institution one at a time. Most families start with a death certificate, a phone number and an email address. Assets sit in banks, insurers, pension funds, brokers, registries and crypto exchanges that do not talk to each other. Money that nobody finds ends up in dormant or unclaimed pools. Money that is found is often claimed slowly, and sometimes fraudulently.
+
+Trove is an AI-assisted inheritance platform with two modes on one data model:
+
+- **Plan Mode (before death).** A person records their assets, documents, nominees and instructions in an encrypted vault. On death, nothing is released until a sequence of identity, legal and fraud gates is passed.
+- **Discovery Mode (after death).** The person never used Trove. The family uploads whatever they have (SMS backups, email exports, a single bank statement, cloud folders, documents) and Trove turns those traces into ranked asset leads, a coverage map of what is still missing, and claim packs for each institution.
+
+Both modes feed one knowledge graph, one trust engine, one claims workspace and one audit trail.
+
+**Why now.** A very large generational wealth transfer is under way. Regulators in India, the UK and the US are pushing institutions to reunite unclaimed assets with owners. Families keep financial lives in email, SMS and apps rather than paper. Language and encoder models can now read those traces cheaply and reliably.
+
+**Who pays.** Families pay for planning and for discovery cases. Banks, insurers, wealth managers and employers pay to offer Trove to their customers and staff (B2B2C), because it cuts their unclaimed liabilities, claim-handling costs and fraud, and helps them keep the next generation as clients.
+
+**Where it stands.** A working prototype exists: Plan Mode with a 10-gate release process, Discovery Mode that reads SMS, email, cloud exports and statements into leads, a knowledge graph with fraud insights, country rules for India, UK, US and EU, an encrypted vault, and an AI case assistant that runs on local encoder models with an optional LLM.
+
+**Recommended launch.** India first (largest unclaimed pool, strong digital public infrastructure, SMS-heavy financial footprint), then the UK. See assumption A1.
+
+---
+
+## 2. Problem statement
+
+### 2.1 The core problem
+
+> Families cannot see, prove or claim what a person owned when that person dies, and nothing connects the institutions that hold it.
+
+### 2.2 Why it happens
+
+| # | Root cause | What the family experiences |
+|---|---|---|
+| P1 | Assets are spread across many institutions, each with its own records | No single place lists what the person owned |
+| P2 | Beneficiaries have no visibility while the owner is alive | Heirs do not know which banks, policies or funds exist |
+| P3 | Records are fragmented across paper, email, SMS, apps and devices | Evidence exists but is scattered and locked |
+| P4 | Nominations are missing, outdated or wrong | Claims stall or go to the wrong person |
+| P5 | Wills are missing, unregistered or cannot be found | Intestate succession, disputes and court delays |
+| P6 | Digital assets (crypto, online accounts, wallets) are hidden or locked | Value is lost permanently when keys are lost |
+| P7 | Pensions and employer benefits are forgotten after job changes | Pots go untraced for years |
+| P8 | Each institution has its own claim process, forms and evidence rules | Families repeat the same paperwork many times |
+| P9 | Death is an easy moment for fraud | Fake death claims, impersonation, forged documents, rogue relatives |
+| P10 | Families do this while grieving, often with no legal or financial background | Mistakes, abandonment of claims, reliance on costly agents |
+
+### 2.3 The result
+
+```
+Unknown assets
+  + missing documents
+  + manual investigation
+  + fraud risk
+  + one claim process per institution
+  = delayed, incomplete or lost wealth transfer
+```
+
+### 2.4 Scale of the problem (indicative)
+
+| Market | Indicator | Source to verify |
+|---|---|---|
+| India | Unclaimed bank deposits transferred to the RBI's Depositor Education and Awareness (DEA) Fund ran to roughly ₹78,000 crore by March 2024 | RBI Annual Report |
+| India | Unclaimed shares and dividends held by IEPF; unclaimed insurance amounts held by insurers; dormant EPF accounts | IEPF Authority, IRDAI, EPFO disclosures |
+| UK | Lost pension pots estimated at around £26bn across ~2.8m pots (2022) | Pensions Policy Institute |
+| US | About 1 in 7 people have unclaimed property; states hold tens of billions of dollars | NAUPA / MissingMoney.com |
+| Global | Tens of trillions of dollars expected to pass between generations over the next two decades | Cerulli Associates and wealth reports |
+
+### 2.5 Problem statement for the pitch
+
+> Every year, billions in deposits, insurance, pensions and investments go unclaimed or are claimed fraudulently because families cannot find what a person owned or prove their right to it. Trove gives families a single, verified way to plan, discover and claim an inheritance, and gives institutions a safe, low-cost way to release it to the right people.
+
+---
+
+## 3. Who suffers: personas and jobs to be done
+
+| Persona | Situation | Job to be done | Pain today |
+|---|---|---|---|
+| **Asset owner** (35–75, salaried or retired, has 5–30 financial relationships) | Alive, wants family protected | "Make sure my family can find and claim everything without a fight" | Writing a list is tedious; sharing passwords is unsafe; a will alone does not list accounts |
+| **Bereaved family member / legal heir** | Parent or spouse just died, little information | "Find out what they had and get it transferred" | Starts from nothing; visits branches; does not know which institutions to ask |
+| **Executor / administrator** | Formally responsible for the estate | "Inventory the estate, pay debts, distribute correctly, prove I did it properly" | Manual inventory, no audit trail, personal liability |
+| **NRI / overseas heir** | Lives abroad, assets are in India (or the reverse) | "Do this remotely" | Physical presence often demanded; time zones; notarisation |
+| **Institution claims team** (bank, insurer, AMC, pension fund) | Receives death claims | "Pay the right person fast, avoid fraud, reduce dormant balances" | Incomplete files, forged documents, repeated follow-ups, regulatory pressure |
+| **Wealth manager / advisor** | Manages a family's money | "Keep the family as clients across generations" | Heirs often move assets to a new advisor after a death |
+| **Lawyer / estate practitioner** | Handles succession and probate | "Get a complete, evidenced estate file quickly" | Clients arrive with shoeboxes of paper |
+
+---
+
+## 4. Solution overview
+
+Trove is one platform with two entry points that end in the same place.
+
+```
+                         TROVE
+                           |
+          +----------------+----------------+
+          v                                 v
+     PLAN MODE                        DISCOVERY MODE
+     owner is alive                   owner has died, never used Trove
+     - register assets                - say what you have
+     - vault documents                - upload SMS / email / cloud / statement
+     - add nominees                   - connect mailbox / folder (lawful access)
+     - set release policy             - query official tracing services
+          |                                 |
+          +---------------+-----------------+
+                          v
+              COMMON DATA PLATFORM + KNOWLEDGE GRAPH
+                          v
+            TRUST, IDENTITY AND RELEASE ENGINE
+       (death verification, heir verification, fraud scoring)
+                          v
+                  CLAIMS WORKSPACE
+       (per-institution claim packs, tasks, deadlines)
+                          v
+               TRANSFER AND SETTLEMENT
+          (tracked per asset, full audit trail)
+```
+
+**Design principles**
+
+1. **Start from whatever the family has.** One SMS backup or one bank statement is enough to begin.
+2. **Evidence before conclusions.** Every lead links back to the exact source line that produced it. Nothing is a fact until a human or an institution confirms it.
+3. **Humans approve, AI assists.** AI finds, sorts and drafts. People approve deaths, heirs, matches and releases.
+4. **Lawful access only.** Trove never guesses passwords, bypasses device locks or scrapes accounts it is not authorised to read.
+5. **Minimum data.** Raw email and document text is processed in memory. Trove stores the extracted signal, a masked reference and a digest, not the original content (except vaulted documents, which are encrypted).
+6. **One country profile per case.** Legal documents, deadlines, privacy rules and tracing services follow the country of the estate.
+
+---
+
+## 5. How Trove solves each problem
+
+| Problem | Trove capability | Mode | Status |
+|---|---|---|---|
+| P1 Assets spread across institutions | Asset register + knowledge graph that merges every source into one view per estate | Both | Built |
+| P2 No beneficiary visibility | Nominee portal with per-nominee document scopes; owner decides who sees what, and when | Plan | Built |
+| P3 Fragmented records | SMS, email, cloud ZIP, folder/USB and statement parsers turn traces into leads | Discovery | Built (uploads, IMAP); OAuth connectors Planned |
+| P4 Missing or wrong nominations | Nomination health check per asset; reminders to update nominations at the institution | Plan | Planned |
+| P5 Missing wills | Encrypted vault for will and trust deeds; cloud discovery searches for will-like files | Both | Built |
+| P6 Hidden digital assets | Crypto discovery (exchange alerts, wallet references); sealed-secret release using key splitting | Both | Partial (detection) / Planned (sealed secrets) |
+| P7 Forgotten pensions | Employer history prompts; pension and provident-fund tracing playbooks per country | Discovery | Partial (playbooks) |
+| P8 One claim process per institution | Claims workspace with per-institution claim packs, document checklists and deadlines | Both | Partial (tracker Built; claim packs Planned) |
+| P9 Fraud | 10-gate release, k-of-n nominee quorum, owner "I am alive" veto, cooling-off, fraud-risk scoring, graph-based collusion checks, hash-chained audit log | Both | Built |
+| P10 Grief and complexity | Guided "What do you have?" intake, prioritised plan, plain-language case assistant, country deadlines computed from date of death | Both | Built |
+
+---
+
+## 6. Business objectives and success metrics
+
+| # | Objective | Metric | Baseline target (24 months after launch) |
+|---|---|---|---|
+| O1 | Become the lifelong inheritance platform for a family | Active Plan Mode families | 100,000 |
+| O2 | Cut the effort to discover an estate | Median time from case open to first confirmed asset | Under 7 days |
+| O3 | Increase asset recovery | Confirmed assets per Discovery case vs. family's own starting list | At least 1.5x |
+| O4 | Reduce fraud | Fraudulent releases | Zero known; 100% of high-risk claims blocked or reviewer-overridden with notes |
+| O5 | Build a regulated institutional network | Institutions live on the claims network | 5 banks/insurers in launch country |
+| O6 | Sustainable business | Gross margin / net revenue retention on B2B | Above 70% / above 110% |
+
+**Product KPIs**
+
+| Area | KPI | Target |
+|---|---|---|
+| Discovery | Discovery success rate (cases with ≥1 confirmed asset) | ≥ 80% |
+| Discovery | Lead precision (leads later confirmed ÷ leads promoted) | ≥ 85% |
+| AI | Document field extraction accuracy (institution, type, masked reference) | ≥ 95% on the evaluation set |
+| AI | Entity matching precision at auto-link threshold | ≥ 99% |
+| Fraud | Fraud model precision on flagged cases / recall on known fraud | ≥ 60% / ≥ 95% |
+| Ops | Median claim cycle time per asset (submitted → paid) | Below the institution's regulatory deadline |
+| Experience | Case abandonment before first claim | ≤ 15% |
+| Trust | Security incidents with data exposure | Zero |
+
+---
+
+## 7. Operating model and actors
+
+| Actor | Role in Trove | Typical permissions |
+|---|---|---|
+| Asset owner | Creates Plan case, vault, nominees, release policy | Full control of own case; can veto any release while alive |
+| Nominee / beneficiary | Enrols via invite, verifies identity, raises or confirms a death claim, receives released documents | Only their own record and their granted document types after release |
+| Executor | Administers the estate | Sees all documents after release; drives claims |
+| Family member (Discovery) | Opens a Discovery case, uploads sources, reviews leads | Own case only |
+| Independent reviewer | Approves ID documents, death certificates and legal documents; overrides high-risk blocks with notes | Only items in their review queue; mandatory TOTP |
+| Institution user (Planned) | Receives claim packs, confirms or rejects assets, records payment | Only claims addressed to their institution |
+| Partner advisor / lawyer (Planned) | Works cases on behalf of families | Cases the family shares with them |
+| Platform administrator | Operates the service | No access to case content by default; break-glass access is logged and alerted |
+
+---
+
+## 8. Plan Mode (before death)
+
+### 8.1 What the owner does
+
+| Step | Action | Status |
+|---|---|---|
+| 1 | Create account, choose country (drives legal rules) | Built |
+| 2 | Register assets: bank, deposit, insurance, mutual fund, shares, pension/PF, property, business, crypto, digital accounts | Built |
+| 3 | Upload documents to the encrypted vault: will, trust deed, property papers, policies, tax returns, ID | Built |
+| 4 | Add nominees with the email and phone they must prove they control, optional ID last-4 and DOB (stored only as keyed hashes), and the document types each may see | Built |
+| 5 | Hand each nominee a one-time invite code in person | Built |
+| 6 | Set release policy: quorum (k of n nominees), cooling-off period, check-in frequency, legal-document requirement | Built |
+| 7 | Periodic "I am alive" check-ins and reminders | Built |
+| 8 | Import assets automatically from consented data feeds (Account Aggregator in India, Open Banking in the UK, consolidated account statements) | Planned |
+| 9 | Nomination health check: flag assets with no nominee or a nominee who differs from the will | Planned |
+| 10 | Record instructions and letters to family (funeral wishes, digital accounts, who to call) | Planned |
+| 11 | Sealed secrets for crypto and passwords, split so no single party (including Trove) can open them alone | Planned |
+
+### 8.2 Data sources
+
+Manual entry, document upload (with extraction), consent-based financial data feeds (Account Aggregator, Open Banking), consolidated statements from depositories and fund registrars, and guided setup of each big-tech legacy feature (Google Inactive Account Manager, Apple Legacy Contact, Facebook memorialisation).
+
+### 8.3 Outputs
+
+Asset register, beneficiary register, encrypted vault, inheritance instructions, release policy, claims-readiness score per asset (has nominee, has documents, institution known, contact details current).
+
+### 8.4 Release on death (summary; detail in Section 12)
+
+Nothing is released until all ten gates pass: invite code, email OTP, phone OTP, authenticator MFA, ID match and human ID review, reviewer-approved death certificate, k-of-n nominee confirmations, owner alert with veto, cooling-off period, and fraud-risk scoring.
+
+---
+
+## 9. Discovery Mode (after death)
+
+### 9.1 Starting point
+
+The family typically has some of: death certificate, full name, date of birth, national ID number, an email address, a phone number, maybe the unlocked phone, maybe one or two documents. Often little else.
+
+### 9.2 Objective
+
+Find bank accounts, deposits, insurance, investments, pensions and provident funds, property, business holdings, loans and cards (liabilities matter too), crypto and digital assets.
+
+### 9.3 Journey
+
+| Step | What happens | Status |
+|---|---|---|
+| 1. What do you have? | Family ticks what they hold and adds known emails, phones, employers. Trove builds a prioritised starting plan | Built |
+| 2. Authority check | Death certificate uploaded and reviewed; relationship to the deceased recorded. Institution-facing steps stay locked until authority is shown | Built (review gate) |
+| 3. Add sources | SMS export, email export or IMAP, cloud ZIP, folder/USB, statements, documents | Built |
+| 4. Leads | Each source produces signals. Signals that point to the same institution and asset merge into a lead whose confidence rises with independent corroboration | Built |
+| 5. Review | Family promotes real leads to the asset register or dismisses them | Built |
+| 6. Coverage map | Shows which asset classes are still gaps and where to look next, including official tracing services | Built |
+| 7. Official tracing | Guided searches of government and industry tracing services; results added as evidence | Partial (guidance Built; automated queries Planned) |
+| 8. Institution confirmation | Trove sends a structured asset enquiry to participating institutions; their answer confirms or rejects the lead | Planned |
+| 9. Claims | Confirmed assets become claims with packs, checklists and deadlines | Partial |
+| 10. Settlement | Each claim tracked to payment or transfer; estate summary exported for the executor and lawyer | Partial |
+
+---
+
+## 10. Discovery mechanisms (detailed)
+
+Each mechanism has an input, a method, what it finds, a legal basis, and a status. Mechanisms are ordered by how often they produce results and how easy they are to use.
+
+### DM1. Phone SMS discovery — Built
+
+- **Input:** SMS backup export (.xml from backup apps, .csv, .txt).
+- **Method:** Sender-ID and pattern rules for banks, card issuers, insurers, brokers, AMCs, PF and pension bodies; encoder-model classification for lines no rule matched; masked last digits extracted.
+- **Finds:** Savings and current accounts, cards, loans (EMIs), insurance premiums, SIPs, demat and broking activity, PF credits.
+- **Why it matters:** In India almost every financial event triggers an SMS. This is often the single richest source.
+- **Legal basis:** Family member with lawful possession of the device or its backup.
+
+### DM2. Email discovery — Built (export + IMAP), Planned (OAuth)
+
+- **Input:** .mbox (Google Takeout) or .eml upload; IMAP read-only connection; later Gmail API and Microsoft Graph.
+- **Method:** Headers scanned first; only finance-looking messages downloaded (BODY.PEEK, nothing marked read); attachments sent to document extraction; app password used once and never stored.
+- **Finds:** Policy renewals, FD maturity notices, broker contract notes, fund statements, pension letters, crypto exchange notices, property tax and utility bills (property clues).
+- **Pipeline:**
+
+```
+Mailbox connector -> header filter -> message fetch -> attachment processor
+   -> document extraction -> entity extraction -> signals -> leads -> knowledge graph
+```
+
+- **Legal basis:** Access must be lawful. In Plan Mode the owner pre-authorises. In Discovery Mode, access comes through the provider's deceased-user process, an executor's legal authority, or a family member who already has lawful access. Rules differ by country (for example RUFADAA in most US states). Counsel review required per country.
+
+### DM3. Cloud storage discovery — Built (ZIP export), Planned (OAuth)
+
+- **Input:** ZIP of Drive / OneDrive / Dropbox / iCloud folders, or a file listing; later direct OAuth connectors.
+- **Method:** File-name signals (for example Last_Will.pdf, LIC_policy.pdf) plus text inside TXT/CSV/PDF; zip-bomb and path-traversal guards.
+- **Finds:** Wills, trust deeds, policies, property papers, investment statements, tax returns.
+
+### DM4. Device and local storage discovery — Built (folder/USB/NAS), Planned (desktop agent)
+
+- **Input:** A read-only mounted folder, USB drive or NAS; later a signed desktop agent the family runs on the deceased's laptop.
+- **Method:** Runs locally; classifies files on the device; uploads only matches the family approves.
+- **Finds:** PDF statements, spreadsheets of investments, tax files, wallet files, password-manager exports (flagged, never opened without explicit instruction).
+
+### DM5. Statement and transaction trail analysis — Built
+
+- **Input:** One bank statement is ideal.
+- **Method:** Every line is classified. Recurring debits reveal insurance premiums, SIPs, loan EMIs, card payments, rent paid. Recurring credits reveal salary, pension, dividends, interest, rent received.
+- **Finds:** The "money trail" to other institutions. One statement often points to five or more further assets.
+
+### DM6. Document upload and extraction — Built (text PDF), Planned (image OCR)
+
+- **Input:** Statements, tax returns, letters, policy schedules, property documents, ID documents.
+- **Method:** Text extraction, field extraction (institution, asset type, masked reference, dates, amounts), document type classification.
+- **Finds:** Institution names, account and policy numbers (masked), property references, holdings.
+
+### DM7. Tax record discovery — Planned (high priority for India)
+
+- **Input:** Tax statements the heir can lawfully obtain (in India the Annual Information Statement and Form 26AS through the legal heir registration on the income-tax portal; elsewhere equivalent records).
+- **Finds:** Every bank paying interest, every company paying dividends, mutual fund redemptions, property transactions, rent. This is one of the most complete single sources of financial relationships.
+
+### DM8. Consolidated holdings statements — Planned
+
+- **Input:** Depository consolidated account statements (NSDL/CDSL CAS), mutual fund consolidated statements (via the registrars or MF Central) in India; equivalents in other markets.
+- **Finds:** All demat holdings and mutual fund folios across fund houses.
+
+### DM9. Official tracing services — Partial
+
+| Country | Service (verify current availability) | Finds |
+|---|---|---|
+| India | RBI UDGAM portal | Unclaimed deposits across participating banks |
+| India | IEPF Authority | Unclaimed shares and dividends |
+| India | EPFO (UAN-based) | Provident fund and pension |
+| India | Insurer unclaimed-amount search on each insurer's website | Unclaimed policy money |
+| UK | Pension Tracing Service; MyLostAccount; HMRC; Gretel-style services | Pensions, dormant bank and building society accounts, NS&I |
+| UK | Tell Us Once; Death Notification Service | Notifies government and participating banks |
+| US | MissingMoney.com / state unclaimed property offices; NAIC Life Insurance Policy Locator | Unclaimed property; life policies |
+
+### DM10. Banking discovery network — Planned (B2B, needs partners)
+
+- **Method:** With verified death and verified heir authority, Trove sends a single structured asset enquiry (name, DOB, ID, phone, email) to participating banks. Each bank answers "relationship exists / does not exist" and its claims route. No balances are shared until a claim is lodged.
+- **Finds:** Accounts, deposits, lockers, loans.
+- **Why banks join:** Fewer branch visits, cleaner claim files, lower dormant balances, regulatory goodwill.
+
+### DM11. Insurance discovery — Planned (network) / Partial (signals)
+
+Life, health, group/employer cover, annuities, credit-life attached to loans. Signals from SMS, email, statements; confirmation through insurer participation or industry policy-locator services.
+
+### DM12. Pension and provident fund discovery — Partial
+
+Employer history prompts the family to list past employers; each maps to the PF or pension body and the tracing route for that country.
+
+### DM13. Property discovery — Planned
+
+Sources: property tax receipts and utility bills in email, registered sale deeds in the vault, land and property registries where the country allows searches by name, mortgage registries, municipal records.
+
+### DM14. Investment discovery — Partial
+
+Contract notes, dividend credits, fund statements, broker SMS, CAS statements, tax records.
+
+### DM15. Crypto and digital asset discovery — Partial
+
+- Exchange sign-up and transaction emails, KYC notices, app lists on the phone, wallet addresses found in files.
+- Public blockchain lookups on found addresses (read-only).
+- Exchange claims through each exchange's deceased-user process.
+- Trove never attempts to brute-force keys or seed phrases.
+
+### DM16. Credit report discovery — Planned
+
+A credit bureau report (where heirs can obtain it) lists loans and cards, which point to banks and sometimes to credit-life insurance.
+
+### DM17. Human network discovery — Planned
+
+Prompts the family to list the deceased's CA/accountant, lawyer, advisor, employer HR and bank relationship manager, and generates letters asking each what they know.
+
+---
+
+## 11. Discovery engine: leads, confidence and coverage
+
+### 11.1 Lifecycle
+
+```
+Signal  ->  Lead  ->  Candidate asset  ->  Confirmed asset  ->  Claim  ->  Settled
+(raw      (merged     (promoted by        (confirmed by       (lodged    (paid /
+mention)   by inst.    family)             institution or      with       transferred)
+           + type)                         strong documents)   inst.)
+                         \-> Dismissed (kept for audit, never re-suggested)
+```
+
+### 11.2 Confidence score (baseline formula)
+
+```
+lead_confidence = 1 - PRODUCT over sources s of (1 - w_source(s) * m(s) * r(s))
+
+w_source  source reliability   (institution answer 0.95, statement 0.8, email 0.7, SMS 0.6, file name 0.4)
+m         match strength       (exact masked reference 1.0, institution + type 0.7, institution only 0.4)
+r         recency              (1.0 if within 24 months, decaying to 0.5 at 10 years)
+```
+
+Independent sources (different channels) compound. Two signals from the same channel count once with a small bonus. Bands: **High ≥ 0.8**, **Medium 0.5–0.8**, **Low < 0.5**. The current prototype uses a simpler corroboration count; this formula is the baseline target.
+
+### 11.3 Coverage map
+
+For each asset class the case shows: found / searched with nothing found / not yet searched, and the next best action (for example "No pension found. Add employer history or search EPFO"). This is how the family knows when they are done.
+
+---
+
+## 12. Trust, identity and release engine
+
+### 12.1 Plan Mode release gates — Built
+
+| # | Gate | Stops |
+|---|---|---|
+| 1 | One-time invite code (7-day expiry) + registered email + strong password | Strangers enrolling |
+| 2 | Email OTP (hashed, 10 min, 5 tries) | Wrong person using the email |
+| 3 | Phone OTP | Single-channel compromise |
+| 4 | Authenticator TOTP MFA, replay-protected | Password theft |
+| 5 | ID last-4 + DOB matched to owner-registered hashes; ID document reviewed by a human; 3 mismatches suspend and alert | Impersonation |
+| 6 | Death certificate uploaded by a verified nominee and approved by an independent reviewer; name cross-checked | Fake death claims |
+| 7 | k-of-n nominee confirmations, each with fresh TOTP; any dispute freezes release | One rogue relative |
+| 8 | Owner alerted by email and phone when a claim opens; "I am alive" cancels it | Claims against a living owner |
+| 9 | Cooling-off period (default 72 h; country minimums apply) | Rushed fraud |
+| 10 | Fraud-risk score; HIGH blocks release unless a reviewer records an override note | Pattern-based fraud |
+
+After release, each nominee sees only granted document types; downloads need TOTP step-up within 10 minutes; every action enters a per-case hash-chained audit log.
+
+### 12.2 Death verification levels
+
+| Level | Evidence | Unlocks |
+|---|---|---|
+| D0 | Family states a death | Discovery from family-held sources only |
+| D1 | Death certificate uploaded and reviewed by a human | Official tracing guidance, claim drafting |
+| D2 | Certificate verified against a government registry or issuing authority (Planned) | Institution enquiries on the network |
+| D3 | Court or government entitlement document (succession certificate, probate, letters of administration, legal-heir certificate) approved | Claim submission and release of high-value assets |
+
+### 12.3 Heir and authority verification
+
+Identity proofing of the claimant (ID document + liveness through a KYC provider, Planned), relationship evidence (marriage or birth certificate, family register), and the country's entitlement document. Trove records evidence and reviewer decisions. It does not decide legal heirship; it presents evidence to the institution that does.
+
+---
+
+## 13. Claims and settlement engine
+
+| Capability | Description | Status |
+|---|---|---|
+| Claim tracker | One claim per confirmed asset, status history, notes | Built |
+| Claim pack generator | Fills each institution's claim form from case data; lists required documents; flags gaps | Planned |
+| Document checklist | Per institution and per country (for example a bank's nominee claim vs. no-nominee claim) | Planned |
+| Deadlines | Country deadlines computed from date of death (death registration, tax filings) | Built |
+| Task engine | Who must do what next; reminders; escalation | Partial |
+| Institution portal / API | Institutions receive claims, request information, approve, record payment | Planned |
+| Estate summary | Inventory of assets, liabilities, claims and outcomes for executor, lawyer and tax filing | Partial (JSON export Built) |
+
+**Claim state machine**
+
+```
+Draft -> Ready (all documents present) -> Submitted -> Information requested -> Resubmitted
+      -> Approved -> Paid / Transferred -> Closed
+      -> Rejected -> Appealed | Closed
+```
+
+---
+
+## 14. AI architecture and agents
+
+### 14.1 Principle: encoders first, generative model only when needed
+
+Most of Trove's AI work is classification, matching and search, not writing. These run on a small local encoder model (default bge-small-en-v1.5 via ONNX, about 67 MB, CPU, no per-call cost). A generative LLM is used only for explanation, drafting and open questions, and only after explicit user consent. This keeps cost low, keeps raw data local and reduces hallucination risk.
+
+```
+Sources: SMS | email | cloud | files | statements | tax | institution answers
+                         v
+     Parsing + text extraction (PDF text now; OCR Planned)
+                         v
+     Rules (sender IDs, patterns)  +  encoder classifier (declines when unsure)
+                         v
+     Field extraction (institution, asset type, masked ref, date, amount)
+                         v
+     Entity resolution (people, institutions, accounts)
+                         v
+     Knowledge graph  ->  discovery engine (leads, confidence, coverage)
+                         v
+     Case assistant (skills + RAG; LLM optional, with consent)
+                         v
+     Recommendations to humans: promote lead, request document, file claim
+```
+
+### 14.2 Agents as skills, not separate bots
+
+The assistant is one runtime that loads **skills** on demand (progressive disclosure: catalogue of one-line descriptions, then the skill's instructions, then reference files, then read-only case tools). Tool output never includes names, contacts, IDs or account numbers.
+
+| Skill / agent | Job | Status |
+|---|---|---|
+| Document agent | Classify and extract fields from documents | Built (rules + encoder) |
+| Discovery agent | Turn sources into signals and leads; suggest next sources | Built |
+| Entity resolution agent | Suggest duplicate people and institutions for human review | Built |
+| Beneficiary agent | Check nominee and heir evidence completeness | Partial |
+| Fraud agent | Score release requests; graph collusion checks | Built |
+| Compliance agent | Country rules, deadlines, privacy notices; AML/KYC hooks | Partial (rules) / Planned (KYC) |
+| Case manager agent | Next actions, reminders, claim pack drafting | Partial |
+
+### 14.3 AI safety rules
+
+1. Document and email text is untrusted input; it can never issue instructions to the assistant (prompt-injection defence).
+2. LLM outputs are restricted to known asset types and schemas; free text is never written into records without review.
+3. Every extracted fact stores a pointer to its source (document ID, line or message digest).
+4. AI never approves a death, an heir, a match above the auto-link threshold without audit, or a release.
+5. Evaluation sets per country and source type; accuracy tracked as KPIs (Section 6); regression tests on every model change.
+6. LLM provider is swappable behind one gateway (Mistral today; any provider with an in-region, no-training data agreement).
+
+---
+
+## 15. Knowledge graph
+
+### 15.1 Model
+
+```
+                 PERSON (deceased / owner)
+          +-----------+-----------+-----------+
+          v           v           v           v
+        EMAIL       PHONE      NATIONAL ID   ADDRESS
+          \           |           |           /
+           +----------+-----+-----+----------+
+                            v
+                 ACCOUNT / POLICY / FOLIO / PROPERTY / WALLET
+                            |
+                  ISSUED_BY v                EVIDENCED_BY
+                       INSTITUTION  <-------------------- DOCUMENT / MESSAGE / SMS
+                            ^
+     NOMINEE / BENEFICIARY --+-- NOMINATED_ON / HEIR_OF / CLAIMS
+```
+
+**Nodes:** Person, Email, Phone, Identifier, Address, Institution, Asset (Account, Policy, Folio, Property, Wallet, Business), Document, Evidence, Lead, Claim.
+**Edges:** HAS_EMAIL, HAS_PHONE, HAS_ID, LIVES_AT, HOLDS, ISSUED_BY, EVIDENCED_BY, MENTIONS, NOMINATED_ON, HEIR_OF, SAME_AS (with confidence), CLAIMS.
+
+### 15.2 Insights — Built
+
+- Nominees who share a phone or email (their verifications are not independent)
+- A nominee using the deceased's own contact details
+- Duplicate institutions or people
+- Leads confirmed by two or more sources but not yet in the asset register
+- Confirmed assets with no claim
+
+### 15.3 Storage
+
+Per-case graph stored in PostgreSQL tables (kg_nodes, kg_edges) and exportable to Neo4j. A dedicated graph database is adopted only when cross-case fraud analytics need it (Phase 3).
+
+---
+
+## 16. High-level design (HLD)
+
+### 16.1 Architecture style
+
+**Modular monolith first, services later.** The prototype is one Python application with strict module boundaries (api → services / discovery / agents → core). Modules are extracted into separate services only when scale, team size or isolation needs justify it. Candidates for first extraction: ingestion/parsing workers and the institution network gateway.
+
+### 16.2 Context diagram
+
+```
+  Owner / Family / Nominee / Executor          Independent reviewers
+            |  (web, mobile)                          |
+            v                                         v
+   +--------------------------------------------------------------+
+   |                          TROVE                               |
+   |  Web app  |  Nominee portal  |  Reviewer console  | Partner  |
+   |                      API gateway / BFF                       |
+   |  Case | Vault | Discovery | Trust & Release | Claims | Graph |
+   |  Assistant (skills, RAG) | Notifications | Audit | Admin     |
+   |  PostgreSQL | Object storage (vault) | Queue | Search/vector |
+   +--------------------------------------------------------------+
+        |              |                 |                |
+        v              v                 v                v
+  Email / cloud   KYC & e-sign    Banks, insurers,    Government registries
+  providers       providers       AMCs, pensions      and tracing services
+  (OAuth / IMAP)                  (network API)       (where APIs exist)
+```
+
+### 16.3 Logical components
+
+| Component | Responsibility | Status |
+|---|---|---|
+| Web app (owner/family) | Plan, Discovery, documents, people, claims, graph, assistant | Built (React + TS) |
+| Nominee portal | Invite → OTP → MFA → ID → claim → vault | Built |
+| Reviewer console | ID, death and legal document review queue | Built |
+| Partner / institution portal | Claims inbox, asset enquiries, payment records | Planned |
+| API layer | Routing, auth, sessions, security headers, rate limits | Built |
+| Case service | Cases, people, assets, beneficiaries, workflow | Built |
+| Vault service | Envelope-encrypted document storage | Built (Fernet); KMS Planned |
+| Discovery service | Parsers, connectors, signals, leads, coverage | Built |
+| Trust & release service | Nominee verification, gates, quorum, cooling-off, fraud score | Built |
+| Claims service | Trackers, packs, tasks, deadlines | Partial |
+| Graph service | Per-case graph build and insights | Built |
+| Assistant | Skills, RAG, encoder models, optional LLM | Built |
+| Notification service | Transactional outbox → SMTP / SMS, retries | Built |
+| Worker | Timers, reminders, cooling-off release, retries, purges | Built |
+| Audit service | Hash-chained event log; external write-once copy Planned | Built (chain) |
+| Jurisdiction service | Country profiles, deadlines, residency enforcement | Built |
+
+### 16.4 Deployment (target)
+
+```
+Internet -> CDN + WAF -> TLS proxy -> web replicas (stateless)
+                                    -> worker replicas (queue consumers, one scheduler via lock)
+                         -> PostgreSQL (managed, encrypted, PITR, read replica)
+                         -> Object storage (vault blobs, versioned, encrypted)
+                         -> Redis (rate limits, sessions, cache)
+                         -> Queue (ingestion jobs, notifications, events)
+                         -> KMS / HSM (key encryption keys)
+One deployment per data region: IN, UK, EU, US. No case data crosses regions.
+```
+
+Today: Docker Compose with Caddy (TLS) → web → PostgreSQL, plus a worker, non-root read-only containers, internal-only database network.
+
+---
+
+## 17. Low-level design (LLD)
+
+### 17.1 Core data model (PostgreSQL)
+
+| Table | Key columns | Notes |
+|---|---|---|
+| owner_account | id, email_enc, email_bidx, password_hash, mfa_secret_enc, created_at | Email encrypted with HMAC blind index for lookup |
+| case | id, owner_id, mode (PLAN/DISCOVERY), country, region, status, date_of_death, created_at | Every route checks ownership |
+| person | id, case_id, role (OWNER/DECEASED/NOMINEE/HEIR/EXECUTOR), name_enc, dob_hash, id_last4_hash | Identifiers stored as keyed hashes |
+| contact | id, person_id, type (EMAIL/PHONE), value_enc, value_bidx, verified_at | |
+| institution | id, name, type, country, aliases[], claims_contact | Shared reference data |
+| asset | id, case_id, institution_id, type, masked_ref, status (CANDIDATE/CONFIRMED/CLAIMED/SETTLED), est_value_band, source_lead_id | |
+| nomination | id, asset_id, person_id, share_pct, source (INSTITUTION/WILL/OWNER) | |
+| document | id, case_id, type, blob_key, dek_wrapped, sha256, review_status, reviewer_id, uploaded_by | Content only in vault |
+| signal | id, case_id, source_type (SMS/EMAIL/CLOUD/FILE/STATEMENT/TAX/INSTITUTION), institution_id, asset_type, masked_ref, digest, observed_at | No raw text |
+| lead | id, case_id, institution_id, asset_type, confidence, status (NEW/PROMOTED/DISMISSED), signal_ids[] | |
+| release_request | id, case_id, opened_by, status, quorum_needed, confirmations, cooling_off_until, risk_level, override_note | |
+| claim | id, case_id, asset_id, status, submitted_at, paid_at, amount_band | |
+| claim_task | id, claim_id, assignee, kind, due_at, done_at | |
+| consent | id, case_id, subject_id, purpose, scope, granted_at, withdrawn_at | LLM use, connectors, data feeds |
+| audit_event | id, case_id, seq, actor, action, payload_digest, prev_hash, hash | Hash chain |
+| outbox | id, channel, to_enc, body_enc, attempts, status | Bodies wiped after delivery |
+| kg_node / kg_edge | id, case_id, kind, props / src, dst, kind, confidence | Per-case graph snapshot |
+
+### 17.2 Key APIs (REST, JSON)
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | /auth/register, /auth/login, /auth/logout | Owner accounts |
+| GET/POST | /cases, /cases/{id} | Create and read cases |
+| POST | /cases/{id}/documents | Encrypted upload + extraction |
+| GET | /cases/{id}/documents/{doc}/download | Decrypt (step-up for nominees) |
+| POST | /cases/{id}/discovery/intake | "What do you have?" → starting plan |
+| POST | /cases/{id}/discovery/sources | Upload SMS / mbox / ZIP / statement |
+| POST | /cases/{id}/connectors/imap | Read-only mailbox scan |
+| GET | /cases/{id}/leads; POST /cases/{id}/leads/{lead}/promote or /dismiss | Lead review |
+| GET | /cases/{id}/coverage | Coverage map |
+| GET | /cases/{id}/graph | Graph + insights |
+| POST | /cases/{id}/nominees; /nominee/enrol; /nominee/verify-otp; /nominee/mfa | Nominee journey |
+| POST | /cases/{id}/release-requests; /confirm; /dispute; /owner-veto | Release workflow |
+| GET/POST | /cases/{id}/claims; PATCH /claims/{id} | Claims |
+| GET | /cases/{id}/compliance; /jurisdictions/{code} | Country rules and deadlines |
+| POST | /cases/{id}/assistant | Assistant (LLM only with consent) |
+| GET | /cases/{id}/export; DELETE /cases/{id} | Portability and erasure |
+| Planned | /network/enquiries; /network/claims (institution-facing, mTLS + signed requests) | Banking and insurance network |
+
+### 17.3 Events (for the queue and the audit log)
+
+case.created, source.uploaded, signal.extracted, lead.created, lead.promoted, lead.dismissed, document.reviewed, death.verified, nominee.verified, release.requested, release.confirmed, release.disputed, release.vetoed, release.completed, claim.created, claim.submitted, claim.paid, fraud.flagged, consent.granted, consent.withdrawn, case.exported, case.deleted.
+
+### 17.4 Sequence: Discovery from an SMS export
+
+```
+Family -> Web: upload sms.xml
+Web -> API: POST /cases/{id}/discovery/sources
+API -> Discovery: parse in memory (defusedxml), size and type checks
+Discovery -> Rules/Encoder: classify each message (decline if unsure)
+Discovery -> DB: insert signals (institution, type, masked ref, digest only)
+Discovery -> Lead engine: merge signals into leads, recompute confidence
+Lead engine -> Graph: upsert nodes/edges, run insights
+API -> Web: leads + coverage map
+Family -> Web: promote lead -> asset (CANDIDATE) -> claim later
+Audit: source.uploaded, signal.extracted x N, lead.created x M
+```
+
+### 17.5 Sequence: Plan Mode release
+
+```
+Nominee A -> enrol (invite + email + password) -> email OTP -> phone OTP -> TOTP -> ID check
+Nominee A -> upload death certificate -> Reviewer approves
+Nominee A -> open release request
+System -> Owner: email + SMS alert ("I am alive" link)
+Nominees B..k -> confirm with fresh TOTP (any dispute -> freeze)
+Worker -> wait for cooling-off; compute fraud score
+  HIGH -> blocked until reviewer override note
+  else -> release: each nominee sees only granted document types
+Audit chain records each step
+```
+
+### 17.6 Entity resolution algorithm
+
+1. **Normalise:** case-fold, strip honorifics and legal suffixes (Ltd, Pvt, Bank of), transliterate Indic names to a common Latin form, normalise phones to E.164.
+2. **Block:** group candidates by institution, phone, email or name sound-alike key.
+3. **Score:** deterministic keys (same national-ID hash, same full account reference) = 1.0; otherwise a weighted score from name similarity (Jaro-Winkler + encoder embedding cosine), DOB, phone, email, address.
+4. **Decide:** ≥ 0.95 auto-link with audit; 0.75–0.95 human review queue; < 0.75 kept separate.
+5. **Never merge automatically** across different national-ID hashes.
+
+### 17.7 Vault encryption (target)
+
+- Envelope encryption: one data key per document (AES-256-GCM); data keys wrapped by a per-case key; per-case keys wrapped by a regional key in KMS/HSM with rotation.
+- Crypto-shredding: deleting the per-case key makes all its documents unreadable, including in backups.
+- Sealed secrets (Planned): the owner's secret (for example a seed phrase) is encrypted on the owner's device and split with Shamir secret sharing (for example 2 of 3: nominee, executor, Trove). Trove releases its share only after the release gates pass, and cannot open the secret alone.
+- Today: Fernet encryption for vault files, contact fields, TOTP secrets and queued messages, with the key held as a deployment secret.
+
+### 17.8 Fraud score (baseline rules, Built)
+
+Recent owner check-in; check-in after claimed death; future death date; certificate name mismatch; nominee added < 30 days before claim; identity mismatches; repeated auth failures; disputes; shared contacts between nominees (graph). Score bands LOW / MEDIUM / HIGH. A learned model is added once labelled outcomes exist (Phase 3).
+
+---
+
+## 18. System design: non-functional requirements and scale
+
+### 18.1 NFRs
+
+| Area | Requirement |
+|---|---|
+| Availability | 99.9% monthly for web and API; release and notification paths monitored separately |
+| Durability | Vault 99.999999999% (managed object storage); database point-in-time recovery |
+| RPO / RTO | RPO ≤ 15 min; RTO ≤ 4 h; restore drill every quarter |
+| Latency | p95 < 300 ms for reads; SMS export of 50,000 messages processed < 2 min |
+| Security | OWASP ASVS L2 minimum; L3 for release and vault paths; annual pen test |
+| Privacy | Data residency per country; raw source text not stored; export and deletion on request |
+| Accessibility | WCAG 2.2 AA (already tested with axe in CI) |
+| Languages | English first; Hindi and major Indian languages in Phase 2 |
+| Auditability | Every state change in the hash-chained audit log; periodic anchoring to write-once storage |
+
+### 18.2 Capacity estimate (year 3, launch country)
+
+| Driver | Assumption | Load |
+|---|---|---|
+| Plan Mode families | 500,000 | Mostly idle; check-ins and reminders |
+| Discovery cases | 50,000 per year | ~140 per day |
+| Sources per case | 1 SMS export (~30k msgs), 1 mailbox (~20k msgs, ~3% fetched), 5–20 documents | ~4M SMS lines and ~80k fetched emails per day at peak |
+| Vault storage | 200 MB average per Plan family | ~100 TB |
+| LLM calls | Only consented assistant questions (~10 per case) | Small; encoders handle bulk classification |
+
+A few worker nodes on CPU handle classification at this load. Ingestion is queued and horizontally scalable; the web tier stays stateless.
+
+### 18.3 Multi-region
+
+Separate deployments for IN, UK, EU, US (TROVE_DATA_REGION). Shared reference data (institution directory) is replicated; case data never leaves its region. Residency enforcement already exists as a flag.
+
+---
+
+## 19. Technology stack (baseline decisions)
+
+The v0 blueprint listed several overlapping options (React, Angular, Flutter; Python, Java, .NET, Node; PostgreSQL, SQL Server, Cosmos, Neo4j). The baseline picks one per layer, following the working prototype.
+
+| Layer | Baseline choice | Why | Rejected for now |
+|---|---|---|---|
+| Web front end | React 18 + TypeScript + Vite | Already built, tested (Vitest, axe, Playwright) | Angular |
+| Mobile | Responsive web / PWA first; React Native in Phase 2 | Reuse TypeScript and components | Flutter (second language) |
+| Backend | Python 3.11+ modular monolith | AI and parsing live in Python; one language for a small team | Java, .NET, Node services |
+| Database | PostgreSQL 16 | System of record; JSONB; row-level security | SQL Server, Cosmos |
+| Graph | PostgreSQL tables + Neo4j export | Enough for per-case graphs | Dedicated graph DB until Phase 3 |
+| Vector search | pgvector or local index | Small corpora (skills, knowledge) | Separate vector DB |
+| Object storage | S3-compatible / Azure Blob, per region | Vault blobs | |
+| Queue | PostgreSQL-backed jobs now; managed queue at scale | Fewer moving parts | Kafka until needed |
+| Cache / limits | Redis (when more than one web replica) | Shared rate limits and sessions | |
+| AI: encoders | bge-small-en-v1.5 (ONNX, CPU) | Free per call, local, private | |
+| AI: LLM | Provider gateway; Mistral today; Azure OpenAI or others allowed with in-region, no-training terms | Swappable | Single-vendor lock-in |
+| OCR | Tesseract / cloud OCR per region (Planned) | Scanned documents and photos | |
+| Identity | Own auth + TOTP now; managed IdP with passkeys (Planned) | | |
+| Infra | Docker containers; Caddy now; managed Kubernetes or app platform per region later | Cloud-portable | |
+| Observability | JSON logs now; OpenTelemetry + SIEM (Planned) | | |
+| Analytics | PostgreSQL read replica + BI tool on de-identified data | | Databricks/Fabric until scale |
+
+---
+
+## 20. Security architecture
+
+### 20.1 Zero-trust flow
+
+```
+User -> MFA / passkey -> identity provider -> policy engine (role, case, scope, step-up age)
+     -> service authorisation (case ownership check on every route)
+     -> encrypted data layer (field encryption + envelope-encrypted vault)
+```
+
+### 20.2 Controls
+
+| Domain | Controls | Status |
+|---|---|---|
+| Identity | Password (PBKDF2), TOTP MFA, step-up for sensitive actions, lockout, independent reviewer accounts | Built |
+| Identity | Passkeys, SSO for partners, KYC with liveness | Planned |
+| Authorisation | Owner-scoped cases (404 otherwise), nominee scopes per document type, separation of duties | Built |
+| Data | Field encryption + blind indexes, encrypted vault, masked references, no raw text stored | Built |
+| Data | KMS/HSM keys with rotation, crypto-shredding | Planned |
+| API | Same-origin checks, CSP, HSTS, SameSite=Strict cookies, size limits, parameterised SQL, rate limits | Built |
+| Infra | Non-root read-only containers, dropped capabilities, internal DB network, TLS | Built |
+| Infra | WAF, DDoS protection, EDR, image scanning, secrets manager | Planned |
+| Monitoring | Health/readiness probes, JSON logs with request IDs | Built |
+| Monitoring | SIEM, alerting, 24x7 on-call, incident runbooks | Planned |
+| Audit | Per-case hash chain with verification | Built |
+| Audit | External write-once anchoring | Planned |
+
+### 20.3 Top threats and mitigations
+
+| Threat | Mitigation |
+|---|---|
+| Fake death claim against a living owner | Owner alert + veto, cooling-off, check-in signals, reviewer approval |
+| Impersonation of a nominee | Multi-channel OTP, TOTP, hashed ID/DOB match, human ID review, KYC (Planned) |
+| Collusion between relatives | k-of-n quorum, shared-contact detection in graph, dispute freeze |
+| Insider at Trove reading documents | Envelope encryption, no default admin access, break-glass logging |
+| Prompt injection via uploaded documents | Documents are untrusted; schema-restricted outputs; tools read-only and case-bound |
+| Credential theft for connected mailboxes | Read-only scopes; app passwords used once and not stored; OAuth tokens encrypted and short-lived |
+| Data breach | Minimum data, field encryption, regional isolation, crypto-shredding |
+
+---
+
+## 21. Fraud management
+
+**Detects:** identity theft, duplicate claims across institutions, forged or altered documents, beneficiary manipulation (late nominee changes), synthetic identities, false death claims, collusion, claims against living owners.
+
+**Layers:**
+1. Preventive gates (Section 12).
+2. Rule-based risk score (Section 17.8) — Built.
+3. Graph analytics: shared contacts, reused documents, same device across unrelated cases (Phase 3, cross-case, privacy-reviewed).
+4. Document forensics: metadata checks, template matching, registry verification (Planned).
+5. Network signal: institutions can flag a claimant; flags are shared under a data-sharing agreement (Planned).
+
+---
+
+## 22. Compliance, regulation and legal access
+
+### 22.1 Frameworks by market (to be assessed with counsel)
+
+| Market | Privacy | Financial / sector | Succession documents (release gate) |
+|---|---|---|---|
+| India | DPDP Act 2023 and Rules | RBI (outsourcing, IT, deceased-claim settlement norms), SEBI, IRDAI, PFRDA, EPFO; Account Aggregator framework | Legal-heir certificate, succession certificate, probate, letters of administration |
+| UK | UK GDPR, DPA 2018 | FCA (Consumer Duty; Open Banking AISP permissions if used), PRA for partners | Grant of probate, letters of administration, Confirmation (Scotland) |
+| EU | GDPR, eIDAS for e-signatures | National regulators; PSD2/PSD3 for account access | European Certificate of Succession or national certificate |
+| US | State privacy laws (CCPA/CPRA etc.), GLBA for partners | SEC, FINRA for broker partners; state unclaimed property laws; RUFADAA for digital assets | Letters testamentary / administration, small-estate affidavit |
+| Global | ISO 27001, ISO 27701, SOC 2 Type II (target certifications) | | |
+
+The prototype already ships country profiles (succession process, required documents, deadlines from date of death, privacy rights, data residency, tracing services). None of this is a claim of compliance or certification.
+
+### 22.2 Important legal realities that shape the design
+
+1. **Consent-based data feeds stop at death.** Account Aggregator (India) and Open Banking (UK/EU) need the account holder's live consent. They are useful in Plan Mode only. Discovery Mode must use legal-heir authority and institution claims processes.
+2. **Regulated-entity requirement.** To consume Account Aggregator data Trove must be, or partner with, a regulated Financial Information User. UK Open Banking access needs FCA authorisation as an AISP or an agent arrangement.
+3. **Accessing a deceased person's accounts.** Email, cloud and phone providers have their own deceased-user processes and terms. Trove only uses access that is lawful for the person using it, and guides families to the official routes.
+4. **Trove does not decide heirship.** It organises evidence; courts and institutions decide.
+5. **Fees on recovered money.** Success fees on unclaimed assets are regulated or capped in some places, and "asset recovery agents" have a poor reputation. Trove caps its fees and publishes them (Section 26).
+6. **Legal services boundary.** Trove must not give legal advice where that requires a licence. It partners with law firms for advice and court filings.
+
+### 22.3 Privacy by design
+
+Lawful basis recorded per processing purpose; consent records with withdrawal; DPIA before launch; retention schedule (for example case data deleted or archived 24 months after settlement unless the family keeps the vault); data subject rights (export and delete already exist); processor agreements with every vendor; breach response within regulatory deadlines.
+
+---
+
+## 23. Market opportunity
+
+### 23.1 Demand drivers
+
+- Large intergenerational wealth transfer in every major market.
+- Growing pools of unclaimed deposits, insurance, dividends and pensions, and regulators campaigning to reduce them.
+- Financial lives moving to email, SMS and apps, leaving a digital trail but no paper file.
+- More families with members abroad (NRIs, expats) who must handle estates remotely.
+- Institutions under pressure to settle deceased claims faster and with less fraud.
+
+### 23.2 Sizing approach (to be completed with current data)
+
+| Layer | Definition | Method |
+|---|---|---|
+| TAM | All deaths with financial assets in launch markets × average spend on estate discovery, administration and planning + institution spend on deceased-claim handling | Deaths per year (civil registration) × share with formal financial accounts × spend per estate; plus claims-ops cost per institution |
+| SAM | Digitally active families and institutions in India and the UK | Smartphone + banking penetration; number of scheduled banks, insurers, AMCs |
+| SOM (5 years) | Families and institutions Trove can realistically reach | Partner distribution reach × conversion |
+
+**Illustrative India math (assumption, verify):** about 9–10 million registered deaths per year; if 30% leave formal financial assets that is roughly 3 million estates a year. At an average of ₹3,000 of software and service spend per estate, that is about ₹900 crore a year in Discovery alone, before Plan Mode subscriptions and institutional licences.
+
+---
+
+## 24. Competitive landscape
+
+Competitors fall into six groups. Names are examples from public information; check each before external use.
+
+| Group | Examples | What they do well | Gap Trove fills |
+|---|---|---|---|
+| Online wills and estate planning | Trust & Will (US), Farewill (UK), Yellow and WillJini (India) | Cheap, guided will writing | A will does not list or find accounts; no post-death discovery or claims |
+| Digital vaults / planning | Everplans (US), Legado (UK), password-manager legacy features | Store documents and instructions | Passive storage; no verified release gates, no discovery, no claims |
+| Bereavement / estate admin help | Empathy, Lantern, Atticus (US) | Checklists, human concierge, sold via insurers and employers | Little automated discovery from the deceased's data; limited outside the US |
+| Death notification | Tell Us Once and Death Notification Service (UK), Settld, Life Ledger (UK) | Notify many organisations at once | Notify institutions you already know about; do not find unknown assets |
+| Lost asset tracing | Gretel (UK), MyLostAccount, Pension Tracing Service, MissingMoney.com (US), RBI UDGAM, IEPF (India) | Search one category or one registry | Single category, mostly for living owners; no unified graph, heir verification or claims |
+| Recovery agents and consultants | Share and claim recovery firms (India), heir hunters (UK/US) | Do the legwork | Manual, high percentage fees, opaque, fraud-prone |
+| Big tech legacy settings | Google Inactive Account Manager, Apple Legacy Contact, Meta memorialisation | Free, built in | Only that provider's data; nothing about finances |
+
+---
+
+## 25. What Trove does that others do not
+
+| Capability | Wills | Vaults | Estate admin | Notification | Tracing | **Trove** |
+|---|---|---|---|---|---|---|
+| Plan before death | Yes | Yes | Some | No | No | **Yes** |
+| Discover unknown assets from SMS, email, cloud, statements | No | No | Little | No | No | **Yes** |
+| All asset classes in one graph (bank, insurance, MF, shares, PF, property, crypto) | No | Manual | Partial | No | One class each | **Yes** |
+| Verified, multi-gate release with owner veto and fraud scoring | No | Basic | No | No | No | **Yes** |
+| Evidence trail from every lead to its source | No | No | No | No | No | **Yes** |
+| Per-country succession rules and deadlines | Some | No | US only | Single country | Single country | **Yes (IN, UK, US, EU)** |
+| Claims workspace through to settlement | No | No | Partial | No | No | **Yes** |
+| Institution network (enquiry + claims) | No | No | Some partnerships | Banks (UK) | Registry only | **Planned** |
+| Privacy model: raw text not stored, local AI by default | n/a | n/a | n/a | n/a | n/a | **Yes** |
+
+**Moat over time**
+
+1. **Data network effect:** every case improves the institution directory, sender-ID rules and extraction models for that country.
+2. **Institution network:** once several banks and insurers answer enquiries through Trove, families get better results there than anywhere else, which brings more institutions.
+3. **Trust and compliance assets:** certifications, regulator relationships and an audited release process take years to copy.
+4. **Lifelong relationship:** Plan Mode families stay for decades and bring their heirs.
+
+---
+
+## 26. Business model: who pays and how
+
+### 26.1 Who pays and why
+
+| Payer | Why they pay | What they buy |
+|---|---|---|
+| Families (B2C) | Save months of effort; find more; avoid agents' fees | Discovery case fee; Plan Mode premium subscription |
+| Banks | Lower dormant and unclaimed balances, fewer branch visits, cleaner claims, fraud reduction, regulatory goodwill | White-label Plan Mode for customers; claims-intake portal; per-claim fee |
+| Insurers | Pay the right beneficiary faster; fewer unclaimed policies; fraud reduction | Beneficiary tracing; claims intake; embedded bereavement benefit |
+| Wealth managers / private banks | Keep heirs as clients after a death | Family legacy plan for clients; advisor console |
+| Employers | Employee benefit for staff and their families | Per-employee benefit pricing |
+| Law firms, CAs, estate practitioners | Faster, complete estate files | Professional seats; per-case fee |
+| Government / regulators (later) | Reduce unclaimed pools; better citizen service | Programme contracts, tracing integrations |
+
+### 26.2 Revenue streams and indicative pricing (illustrative, to be validated)
+
+| Stream | India (indicative) | UK (indicative) |
+|---|---|---|
+| Plan Mode basic | Free | Free |
+| Plan Mode premium (vault, nominees, reminders, sealed secrets) | ₹999–1,999 / year | £49–79 / year |
+| Discovery case (self-serve) | ₹2,999–4,999 flat | £149–299 flat |
+| Discovery assisted (case manager) | Flat fee + success fee, capped (for example 2% capped at ₹50,000) | Flat fee + capped success fee |
+| Institution SaaS licence | Annual platform fee + per active customer or per claim | Same |
+| Network API | Per enquiry / per claim pack | Same |
+| Professional seats | Per seat per month | Per seat per month |
+
+**Pricing principles:** no fee on assets the family already knew about; success fees capped and disclosed; free Plan basic tier to build the funnel; institutions pay most in the long run.
+
+### 26.3 Unit economics targets (illustrative)
+
+| Metric | Target |
+|---|---|
+| B2C CAC via partners | Below 30% of first-year revenue |
+| Discovery case gross margin (self-serve) | ≥ 80% |
+| Assisted case gross margin | ≥ 50% |
+| B2B contract | 3-year terms; payback < 12 months |
+| Infrastructure cost per Discovery case | Low, because classification runs on local encoders |
+
+---
+
+## 27. Funding plan
+
+### 27.1 Stages
+
+| Stage | Amount (indicative) | Use of funds | Milestones to unlock next stage |
+|---|---|---|---|
+| Pre-seed / angel | $0.5–1M | Harden prototype, OCR, OAuth connectors, security review, India legal opinions, 2 design partners | 500 Discovery cases, measured lead precision, one signed bank or insurer pilot |
+| Seed | $3–5M | Team of 12–18, ISO 27001 path, claim packs, institution portal, UK entry prep | 3 institutional pilots, 10,000 Plan families, repeatable B2B sales |
+| Series A | $12–20M | Network scale-up, UK launch, compliance certifications, sales team | 5+ institutions live, clear revenue growth and retention |
+
+### 27.2 Sources of capital
+
+- Angels with banking, insurance, wealth and legal backgrounds (also open partner doors).
+- Fintech and insurtech-focused seed funds.
+- Corporate venture arms of banks, insurers and wealth managers (strategic, but avoid exclusivity that blocks other institutions).
+- Non-dilutive: government startup schemes (for example Startup India Seed Fund Scheme, Innovate UK grants), regulatory sandboxes (RBI, IRDAI, FCA) for credibility.
+- Revenue: paid pilots with institutions from the pre-seed stage.
+
+### 27.3 What investors will ask (answers in this spec)
+
+Market size (Section 23), why now (Section 1), defensibility (Section 25), regulatory risk (Sections 22 and 30), trust and safety (Sections 12, 20, 21), unit economics (Section 26), team and roadmap (Sections 28–29).
+
+---
+
+## 28. Go-to-market
+
+| Phase | Motion | Channel |
+|---|---|---|
+| 1. Prove discovery | Self-serve Discovery for families; content on "how to find a parent's accounts" | SEO, communities, CA and lawyer referrals, NRI groups |
+| 2. Prove trust | Plan Mode free tier; employer pilots | HR benefit platforms, wealth advisors |
+| 3. Prove institutions | Paid pilot with one bank and one insurer: claims intake + tracing | Direct enterprise sales, sandbox programmes |
+| 4. Network | Asset enquiry API across participating institutions | Industry bodies, regulator engagement |
+| 5. Second country | UK (pensions, dormant accounts, probate) | Partnerships with advisers and probate firms |
+
+**Assisted channel:** many bereaved users will not finish alone. A small case-manager team (and later partner CAs/lawyers) handles assisted cases through the same workspace.
+
+---
+
+## 29. Roadmap and MVP scope
+
+### 29.1 Current state (prototype) — Built
+
+Plan Mode with 10 gates, nominee portal, reviewer console, encrypted vault, SMS/email/cloud/folder/statement discovery, leads and coverage map, knowledge graph with insights, claims tracker, country profiles (IN/UK/US/EU), skills-based assistant with local encoders and optional LLM, Docker production stack, accessibility tests, end-to-end tests.
+
+### 29.2 Phases
+
+| Phase | Timeline (from baseline) | Scope |
+|---|---|---|
+| **Phase 1: MVP launch (India)** | Months 0–6 | OCR for scanned documents and photos; Gmail and Microsoft OAuth connectors; India tracing playbooks (UDGAM, IEPF, EPFO, insurers, CAS, AIS); claim pack generator for top 20 Indian banks and insurers; KYC provider; KMS-managed keys; Hindi UI; pen test; DPDP notices and consent flows; payments |
+| **Phase 2: Institutions** | Months 6–12 | Partner portal; asset enquiry API; first bank and insurer pilots; Account Aggregator import for Plan Mode (via regulated partner); React Native app; advisor console; nomination health check |
+| **Phase 3: Network and scale** | Months 12–24 | Multi-institution network; cross-case fraud analytics; learned fraud model; sealed secrets; ISO 27001 certification; SOC 2 Type I |
+| **Phase 4: UK** | Months 18–30 | UK profile hardening, pension tracing integrations, probate partners, FCA perimeter work |
+
+### 29.3 MVP acceptance criteria
+
+1. A family with only an SMS export and one statement reaches at least 3 correct leads in under 15 minutes (measured on a test set of 50 consented or synthetic estates).
+2. Lead precision ≥ 85% on that test set.
+3. Every Plan Mode release passes all ten gates; end-to-end tests cover veto, dispute, high-risk block and lockout.
+4. External penetration test with no open critical or high findings.
+5. DPIA completed; privacy notice, consent and deletion flows live.
+6. Claim packs generated for at least 20 institutions.
+
+---
+
+## 30. Risks, assumptions, open questions, change log
+
+### 30.1 Key risks
+
+| # | Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|---|
+| R1 | Institutions slow to join the network | High | High | Lead with family-side discovery that works without them; paid pilots; sandbox and regulator engagement |
+| R2 | Legal limits on accessing a deceased person's email/cloud | Medium | High | Lawful-access-only design; official provider routes; counsel opinions per country |
+| R3 | A fraudulent release | Low | Very high | Ten gates, reviewer separation of duties, insurance, incident playbook |
+| R4 | Data breach | Low | Very high | Minimum data, encryption, regional isolation, certifications |
+| R5 | Being seen as a "recovery agent" charging on families' grief | Medium | High | Capped, published fees; free basics; clear value |
+| R6 | Low willingness to pay before death (Plan Mode) | High | Medium | Distribute through banks, employers, advisors; free tier |
+| R7 | AI extraction errors | Medium | Medium | Human review, evidence links, evaluation sets, decline-when-unsure |
+| R8 | Regulatory classification (is Trove a regulated activity?) | Medium | High | Early legal opinions; partner with regulated entities where needed |
+| R9 | Big tech or a large bank builds a similar feature | Medium | Medium | Cross-institution neutrality is the point; a single bank cannot see other banks |
+
+### 30.2 Assumptions
+
+| # | Assumption | Owner to validate |
+|---|---|---|
+| A1 | Launch in India first, UK second | Founders |
+| A2 | Families will upload SMS and email exports if the privacy model is clear | Product (user research) |
+| A3 | At least one bank or insurer will pay for a pilot within 12 months | Business development |
+| A4 | Self-serve Discovery pricing in Section 26 is acceptable | Product (pricing tests) |
+| A5 | Local encoder models are accurate enough for bulk classification in Indian financial text | AI lead |
+
+### 30.3 Open questions (details that still need a decision)
+
+1. Legal entity, founding team, advisors (legal, banking, insurance) and board.
+2. Final brand and domain; trademark check for "Trove" in each launch country.
+3. Exact first customer: families directly, or one institution as design partner?
+4. Which regulated partner for Account Aggregator access in India?
+5. KYC, e-sign and OCR vendors per region.
+6. Liability and insurance: professional indemnity and cyber cover; terms that limit liability for institution decisions.
+7. Disputes between heirs: does Trove freeze, mediate, or refer to lawyers? (Prototype: any dispute freezes release.)
+8. Minors and persons lacking capacity as beneficiaries: guardian flows.
+9. Cross-border estates (assets in two countries): one case with two profiles, or linked cases?
+10. Tax: estate or inheritance tax guidance (UK IHT, US estate tax; India has none today but income on inherited assets is taxed).
+11. Liabilities: should Trove also discover debts (loans, cards) so executors can settle them? (Recommended: yes, show them, never pay from estate funds.)
+12. Data retention after settlement and what happens to a Plan vault after release.
+13. Accessibility and assisted channels for elderly and low-literacy users (voice, regional languages, phone support).
+14. Grief-aware design: tone, pacing, ability to pause, involve a trusted helper.
+15. Offline evidence: posting physical letters (Plan Mode reminders) and scanning paper post (Discovery).
+16. Metrics and research ethics for using real cases to improve models (consent, de-identification).
+
+### 30.4 Change log
+
+| Version | Date | Change |
+|---|---|---|
+| 0.1 | Before 17 Nov 2026 | Original blueprint (Trove_v0_original.txt) |
+| 1.0 | 17 Nov 2026 | Baseline: added problem detail, personas, solution mapping, 17 discovery mechanisms, lead confidence model, trust levels, HLD, LLD, NFRs and capacity, baseline tech stack decisions, market, competitors, differentiation, business model, funding, GTM, roadmap, risks, assumptions, open questions; status tags aligned with the prototype |
+
+---
+
+## 31. Glossary
+
+| Term | Meaning |
+|---|---|
+| AA (Account Aggregator) | India's consent-based framework for sharing financial data between regulated entities |
+| AIS / Form 26AS | Indian tax statements listing income, interest, dividends and high-value transactions |
+| CAS | Consolidated Account Statement of demat and mutual fund holdings |
+| DEA Fund | RBI fund that receives deposits unclaimed for 10 years |
+| EPFO / UAN | India's Employees' Provident Fund Organisation / Universal Account Number |
+| IEPF | Investor Education and Protection Fund (unclaimed shares and dividends, India) |
+| Lead | A possible asset built from one or more signals; not a fact until confirmed |
+| Signal | One extracted observation from a source (for example "SMS from bank X, card ending 1234") |
+| Nominee | Person named to receive an asset (by an institution or in Trove Plan Mode) |
+| Legal heir | Person entitled under succession law; may differ from the nominee |
+| Probate / letters of administration | Court documents that give authority to administer an estate |
+| Release gate | A check that must pass before vault contents are released |
+| k-of-n quorum | k of the n verified nominees must confirm a death claim |
+| Cooling-off period | Waiting time between a valid claim and release, during which the owner can veto |
+| Envelope encryption | Data encrypted with a data key, which is itself encrypted with a master key |
+| Crypto-shredding | Deleting the key so encrypted data becomes unreadable |
+| Shamir secret sharing | Splitting a secret into parts so that only a set number of parts can rebuild it |
+| RUFADAA | US uniform law on fiduciary access to digital assets |
+| UDGAM | RBI portal to search unclaimed deposits across banks |
+
+---
+
+*End of Trove Baseline Specification v1.0.*
